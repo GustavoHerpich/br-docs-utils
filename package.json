@@ -1,6 +1,6 @@
-﻿{
+{
   "name": "br-docs-utils",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "TypeScript utilities for Brazilian documents (CPF, CNPJ, etc).",
   "license": "MIT",
   "type": "module",
@@ -53,7 +53,9 @@
     "dev": "tsup --watch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run typecheck && npm test"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",
@@ -61,5 +63,17 @@
     "tsup": "^8.4.0",
     "typescript": "^5.8.2",
     "vitest": "^3.0.8"
+  },
+  "author": "Gustavo Herpich",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GustavoHerpich/br-docs-utils.git"
+  },
+  "homepage": "https://github.com/GustavoHerpich/br-docs-utils#readme",
+  "bugs": {
+    "url": "https://github.com/GustavoHerpich/br-docs-utils/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
