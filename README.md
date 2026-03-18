@@ -1,91 +1,109 @@
 ﻿# br-docs-utils
 
-Public TypeScript utility library focused on Brazilian documents.
+Biblioteca em TypeScript com utilitários para documentos brasileiros.
 
-The first module is dedicated to CPF and CNPJ, including official support for
-the alphanumeric CNPJ model scheduled by Receita Federal for July 2026.
+A primeira versão da lib é focada em CPF e CNPJ, com suporte a:
 
-## Goals
+- validação
+- formatação
+- mascaramento
+- uso genérico para campos que aceitam CPF ou CNPJ
+- CNPJ alfanumérico conforme a Receita Federal
 
-- Public package ready for npm or pnpm
-- Small and tree-shakeable entry points
-- Clear split by domain and responsibility
-- Strong typing with pure functions
-- Shared internals isolated from public exports
-- Official support for numeric and alphanumeric CNPJ
+A estrutura também foi pensada para crescer no futuro com outros documentos, como IE, PIS e RG.
 
-## Suggested structure
+## Para que serve
 
-```text
-src/
-  documents/
-    cpf/
-      format.ts
-      index.ts
-      mask.ts
-      validate.ts
-    cnpj/
-      format.ts
-      index.ts
-      mask.ts
-      validate.ts
-    shared/
-      types.ts
-      utils.ts
-    index.ts
-  internal/
-    helpers.ts
-    regex.ts
-  index.ts
-test/
-  cpf/
-    format.spec.ts
-    validate.spec.ts
-  cnpj/
-    format.spec.ts
-    validate.spec.ts
-  documents/
-    shared.spec.ts
-```
+O `br-docs-utils` ajuda a padronizar operações comuns com documentos brasileiros em aplicações frontend e backend, como:
 
-## Install
+- validar CPF antes de enviar um formulário
+- validar CNPJ numérico ou alfanumérico
+- formatar documentos para exibição
+- mascarar dados sensíveis
+- tratar campos que podem receber CPF ou CNPJ no mesmo input
+
+## Instalação
+
+Com `npm`:
 
 ```bash
 npm install br-docs-utils
 ```
 
+Com `pnpm`:
+
 ```bash
 pnpm add br-docs-utils
 ```
 
-## Usage
+## Como usar
+
+### Exemplo com CPF
+
+```ts
+import { formatCPF, isValidCPF, maskCPF } from 'br-docs-utils';
+
+isValidCPF('529.982.247-25');
+// true
+
+formatCPF('52998224725');
+// 529.982.247-25
+
+maskCPF('52998224725');
+// 529.***.***-25
+```
+
+### Exemplo com CNPJ
+
+```ts
+import { formatCNPJ, isValidCNPJ, maskCNPJ } from 'br-docs-utils';
+
+isValidCNPJ('04.252.011/0001-10');
+// true
+
+isValidCNPJ('12.ABC.345/01DE-35');
+// true
+
+formatCNPJ('12ABC34501DE35');
+// 12.ABC.345/01DE-35
+
+maskCNPJ('12ABC34501DE35');
+// 12.***.***/****-35
+```
+
+### Exemplo para campo que aceita CPF ou CNPJ
 
 ```ts
 import {
   cpfCnpjRule,
-  formatCNPJ,
-  formatCPF,
+  formatAndMaskDocument,
   formatDocument,
-  isValidCNPJ,
-  isValidCPF,
-  maskCNPJ,
-  maskCPF,
+  getValidDocumentKind,
+  isValidDocument,
 } from 'br-docs-utils';
 
-isValidCPF('529.982.247-25');
-isValidCNPJ('12.ABC.345/01DE-35');
+isValidDocument('529.982.247-25');
+// true
 
-formatCPF('52998224725');
-formatCNPJ('12ABC34501DE35');
+isValidDocument('12.ABC.345/01DE-35');
+// true
 
-maskCPF('52998224725');
-maskCNPJ('12ABC34501DE35');
+getValidDocumentKind('12.ABC.345/01DE-35');
+// cnpj
 
-formatDocument('12ABC34501DE35');
-cpfCnpjRule('12ABC34501DE35');
+formatDocument('52998224725');
+// 529.982.247-25
+
+formatAndMaskDocument('12ABC34501DE35');
+// 12.***.***/****-35
+
+cpfCnpjRule('123');
+// CPF/CNPJ invalido
 ```
 
-## Granular imports
+### Importações por módulo
+
+Se você quiser importar apenas o domínio necessário:
 
 ```ts
 import { formatCPF, isValidCPF } from 'br-docs-utils/documents/cpf';
@@ -93,7 +111,7 @@ import { formatCNPJ, isValidCNPJ } from 'br-docs-utils/documents/cnpj';
 import { cpfCnpjRule, formatDocument } from 'br-docs-utils/documents';
 ```
 
-## Public API
+## Funções disponíveis
 
 ### CPF
 
@@ -118,7 +136,7 @@ import { cpfCnpjRule, formatDocument } from 'br-docs-utils/documents';
 - `maskCNPJ`
 - `cnpjRule`
 
-### Generic documents
+### Genéricas
 
 - `getDocumentKind`
 - `getValidDocumentKind`
@@ -129,23 +147,44 @@ import { cpfCnpjRule, formatDocument } from 'br-docs-utils/documents';
 - `cpfCnpjRule`
 - `documentRule`
 
-## Design notes
+## Rodando o projeto localmente
 
-- Functions are pure and have no side effects
-- Regex usage is intentionally small and centralized
-- Shared document helpers were designed to scale for IE, PIS, RG and future domains
-- Root exports stay ergonomic, while subpath imports remain tree-shakeable
+Instalar dependências:
 
-## References
+```bash
+npm install
+```
 
-- Receita Federal: <https://www.gov.br/receitafederal/pt-br/assuntos/empresas-e-negocios>
-- Perguntas e respostas do CNPJ alfanumerico:
-  <https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/publicacoes/perguntas-e-respostas/cnpj/cnpj-alfanumerico.pdf>
+Executar validação de tipos:
 
-## Local scripts
+```bash
+npm run typecheck
+```
+
+Rodar os testes:
+
+```bash
+npm test
+```
+
+Gerar o build:
 
 ```bash
 npm run build
-npm run test
-npm run typecheck
 ```
+
+Gerar o pacote para publicação:
+
+```bash
+npm pack
+```
+
+## Referências
+
+- Receita Federal: <https://www.gov.br/receitafederal/pt-br/assuntos/empresas-e-negocios>
+- Perguntas e respostas sobre CNPJ alfanumérico:
+  <https://www.gov.br/receitafederal/pt-br/centrais-de-conteudo/publicacoes/perguntas-e-respostas/cnpj/cnpj-alfanumerico.pdf>
+
+## Observação
+
+O suporte ao CNPJ alfanumérico foi incluído considerando a documentação oficial da Receita Federal e a entrada em vigor prevista para julho de 2026.
