@@ -1,0 +1,65 @@
+﻿{
+  "name": "br-docs-utils",
+  "version": "1.0.0",
+  "description": "TypeScript utilities for Brazilian documents (CPF, CNPJ, etc).",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./documents": {
+      "types": "./dist/documents/index.d.ts",
+      "import": "./dist/documents/index.js",
+      "require": "./dist/documents/index.cjs"
+    },
+    "./documents/cpf": {
+      "types": "./dist/documents/cpf/index.d.ts",
+      "import": "./dist/documents/cpf/index.js",
+      "require": "./dist/documents/cpf/index.cjs"
+    },
+    "./documents/cnpj": {
+      "types": "./dist/documents/cnpj/index.d.ts",
+      "import": "./dist/documents/cnpj/index.js",
+      "require": "./dist/documents/cnpj/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "helpers",
+    "utils",
+    "typescript",
+    "cpf",
+    "cnpj",
+    "cnpj-alfanumerico",
+    "documentos",
+    "brasil"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "clean": "rimraf dist",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "rimraf": "^6.0.1",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.8"
+  }
+}
