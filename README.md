@@ -5,6 +5,7 @@ Biblioteca em TypeScript com utilitários para documentos brasileiros.
 A primeira versão da lib é focada em CPF e CNPJ, com suporte a:
 
 - validação
+- validação com motivo de falha
 - formatação
 - mascaramento
 - uso genérico para campos que aceitam CPF ou CNPJ
@@ -20,6 +21,7 @@ O `br-docs-utils` ajuda a padronizar operações comuns com documentos brasileir
 - validar CNPJ numérico ou alfanumérico
 - formatar documentos para exibição
 - mascarar dados sensíveis
+- normalizar CPF ou CNPJ para salvar no banco
 - tratar campos que podem receber CPF ou CNPJ no mesmo input
 
 ## Instalação
@@ -41,34 +43,50 @@ pnpm add br-docs-utils
 ### Exemplo com CPF
 
 ```ts
-import { formatCPF, isValidCPF, maskCPF } from 'br-docs-utils';
+import { formatCPF, isValidCPF, maskCPF, validateCPF } from "br-docs-utils";
 
-isValidCPF('529.982.247-25');
+isValidCPF("529.982.247-25");
 // true
 
-formatCPF('52998224725');
+formatCPF("52998224725");
 // 529.982.247-25
 
-maskCPF('52998224725');
+maskCPF("52998224725");
 // 529.***.***-25
+
+validateCPF("111.111.111-11");
+// {
+//   kind: 'cpf',
+//   isValid: false,
+//   normalized: '11111111111',
+//   reason: 'repeated_digits'
+// }
 ```
 
 ### Exemplo com CNPJ
 
 ```ts
-import { formatCNPJ, isValidCNPJ, maskCNPJ } from 'br-docs-utils';
+import { formatCNPJ, isValidCNPJ, maskCNPJ, validateCNPJ } from "br-docs-utils";
 
-isValidCNPJ('04.252.011/0001-10');
+isValidCNPJ("04.252.011/0001-10");
 // true
 
-isValidCNPJ('12.ABC.345/01DE-35');
+isValidCNPJ("12.ABC.345/01DE-35");
 // true
 
-formatCNPJ('12ABC34501DE35');
+formatCNPJ("12ABC34501DE35");
 // 12.ABC.345/01DE-35
 
-maskCNPJ('12ABC34501DE35');
+maskCNPJ("12ABC34501DE35");
 // 12.***.***/****-35
+
+validateCNPJ("12.ABC.345/01DE-36");
+// {
+//   kind: 'cnpj',
+//   isValid: false,
+//   normalized: '12ABC34501DE36',
+//   reason: 'invalid_check_digits'
+// }
 ```
 
 ### Exemplo para campo que aceita CPF ou CNPJ
@@ -76,39 +94,81 @@ maskCNPJ('12ABC34501DE35');
 ```ts
 import {
   cpfCnpjRule,
+  documentInfo,
   formatAndMaskDocument,
   formatDocument,
   getValidDocumentKind,
+  isPossibleDocument,
   isValidDocument,
-} from 'br-docs-utils';
+  normalizeDocument,
+} from "br-docs-utils";
 
-isValidDocument('529.982.247-25');
+isValidDocument("529.982.247-25");
 // true
 
-isValidDocument('12.ABC.345/01DE-35');
+isValidDocument("12.ABC.345/01DE-35");
 // true
 
-getValidDocumentKind('12.ABC.345/01DE-35');
+getValidDocumentKind("12.ABC.345/01DE-35");
 // cnpj
 
-formatDocument('52998224725');
+normalizeDocument("12.ABC.345/01DE-35");
+// 12ABC34501DE35
+
+formatDocument("52998224725");
 // 529.982.247-25
 
-formatAndMaskDocument('12ABC34501DE35');
+formatAndMaskDocument("12ABC34501DE35");
 // 12.***.***/****-35
 
-cpfCnpjRule('123');
+isPossibleDocument("12.345");
+// true
+
+cpfCnpjRule("123");
 // CPF/CNPJ invalido
+
+documentInfo("12.ABC.345/01DE-35");
+// {
+//   kind: 'cnpj',
+//   isShape: true,
+//   isValid: true,
+//   normalized: '12ABC34501DE35',
+//   formatted: '12.ABC.345/01DE-35',
+//   masked: '12.***.***/****-35'
+// }
 ```
+
+### Fluxo de UI para CNPJ alfanumérico
+
+Para campos híbridos de formulário, um fluxo comum é:
+
+1. usar `isPossibleDocument` enquanto o usuário ainda está digitando
+2. usar `normalizeDocument` antes de salvar ou comparar valores
+3. usar `documentInfo` para decidir exibição, máscara e validação final
+4. usar `validateCNPJ` quando você precisar mostrar o motivo exato da falha
 
 ### Importações por módulo
 
 Se você quiser importar apenas o domínio necessário:
 
 ```ts
-import { formatCPF, isValidCPF } from 'br-docs-utils/documents/cpf';
-import { formatCNPJ, isValidCNPJ } from 'br-docs-utils/documents/cnpj';
-import { cpfCnpjRule, formatDocument } from 'br-docs-utils/documents';
+import {
+  formatCPF,
+  isValidCPF,
+  validateCPF,
+} from "br-docs-utils/documents/cpf";
+import {
+  formatCNPJ,
+  isValidCNPJ,
+  validateCNPJ,
+} from "br-docs-utils/documents/cnpj";
+import {
+  cpfCnpjRule,
+  documentInfo,
+  formatDocument,
+  isPossibleDocument,
+  normalizeDocument,
+} from "br-docs-utils/documents";
 ```
 
 ## Funções disponíveis
@@ -119,6 +179,7 @@ import { cpfCnpjRule, formatDocument } from 'br-docs-utils/documents';
 - `normalizeCPF`
 - `isCPFShape`
 - `isValidCPF`
+- `validateCPF`
 - `formatCPF`
 - `maskCPF`
 - `cpfRule`
@@ -132,18 +193,24 @@ import { cpfCnpjRule, formatDocument } from 'br-docs-utils/documents';
 - `isAlphanumericCNPJ`
 - `isCNPJShape`
 - `isValidCNPJ`
+- `validateCNPJ`
 - `formatCNPJ`
 - `maskCNPJ`
 - `cnpjRule`
 
 ### Genéricas
 
+- `stripDocumentMask`
+- `normalizeDocument`
 - `getDocumentKind`
 - `getValidDocumentKind`
+- `isPossibleDocument`
+- `looksLikeDocument`
 - `isValidDocument`
 - `formatDocument`
 - `maskDocument`
 - `formatAndMaskDocument`
+- `documentInfo`
 - `cpfCnpjRule`
 - `documentRule`
 

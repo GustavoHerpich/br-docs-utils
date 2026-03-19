@@ -9,6 +9,7 @@ import {
   isValidCNPJ,
   normalizeCNPJ,
   stripCNPJMask,
+  validateCNPJ,
 } from '../../src/documents/cnpj';
 
 describe('CNPJ validate', () => {
@@ -33,6 +34,19 @@ describe('CNPJ validate', () => {
     expect(isValidCNPJ('04.252.011/0001-10')).toBe(true);
     expect(isValidCNPJ('12.ABC.345/01DE-35')).toBe(true);
     expect(isValidCNPJ('12.ABC.345/01DE-36')).toBe(false);
+  });
+
+  it('returns detailed CNPJ validation reasons', () => {
+    expect(validateCNPJ('').reason).toBe('empty');
+    expect(validateCNPJ('12.ABC.345/01D-35').reason).toBe('invalid_shape');
+    expect(validateCNPJ('00.000.000/0000-00').reason).toBe('zeroed');
+    expect(validateCNPJ('12.ABC.345/01DE-36').reason).toBe('invalid_check_digits');
+    expect(validateCNPJ('12.ABC.345/01DE-35')).toEqual({
+      kind: 'cnpj',
+      isValid: true,
+      normalized: '12ABC34501DE35',
+      reason: 'valid',
+    });
   });
 
   it('returns rule result for forms', () => {

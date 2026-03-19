@@ -1,7 +1,7 @@
 {
   "name": "br-docs-utils",
-  "version": "1.1.0",
-  "description": "TypeScript utilities for Brazilian documents (CPF, CNPJ, etc).",
+  "version": "1.2.0",
+  "description": "Utilitários TypeScript para documentos brasileiros (CPF, CNPJ, etc).",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,

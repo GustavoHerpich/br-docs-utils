@@ -2,13 +2,18 @@
 
 import {
   cpfCnpjRule,
+  documentInfo,
   documentRule,
   formatAndMaskDocument,
   formatDocument,
   getDocumentKind,
   getValidDocumentKind,
+  isPossibleDocument,
   isValidDocument,
+  looksLikeDocument,
   maskDocument,
+  normalizeDocument,
+  stripDocumentMask,
 } from "../../src/documents";
 
 describe("document shared utils", () => {
@@ -33,9 +38,34 @@ describe("document shared utils", () => {
     );
   });
 
+  it("normalizes document values generically", () => {
+    expect(stripDocumentMask("12.abc.345/01de-35")).toBe("12ABC34501DE35");
+    expect(normalizeDocument("529.982.247-25")).toBe("52998224725");
+    expect(normalizeDocument("12.ABC.345/01DE-35")).toBe("12ABC34501DE35");
+    expect(normalizeDocument("12.345")).toBe("12345");
+  });
+
+  it("supports permissive document detection for UI inputs", () => {
+    expect(isPossibleDocument("12.345")).toBe(true);
+    expect(looksLikeDocument("12ABC345")).toBe(true);
+    expect(isPossibleDocument("abc")).toBe(false);
+    expect(isPossibleDocument("123456789012345")).toBe(false);
+  });
+
+  it("returns aggregated document info", () => {
+    expect(documentInfo("12.ABC.345/01DE-35")).toEqual({
+      kind: "cnpj",
+      isShape: true,
+      isValid: true,
+      normalized: "12ABC34501DE35",
+      formatted: "12.ABC.345/01DE-35",
+      masked: "12.***.***/****-35",
+    });
+  });
+
   it("exposes reusable generic rules", () => {
     expect(cpfCnpjRule("529.982.247-25")).toBe(true);
-    expect(cpfCnpjRule("123")).toBe("CPF/CNPJ invalido");
+    expect(cpfCnpjRule("123")).toBe("CPF/CNPJ inválido.");
     expect(documentRule("")).toBe(true);
   });
 });
