@@ -42,7 +42,12 @@
     "cnpj",
     "cnpj-alfanumerico",
     "documentos",
-    "brasil"
+    "brasil",
+    "validator",
+    "validation",
+    "br-docs",
+    "cpf-validator",
+    "cnpj-validator"
   ],
   "engines": {
     "node": ">=18"
@@ -54,8 +59,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "prepack": "npm run build",
-    "prepublishOnly": "npm run typecheck && npm test"
+    "prepack": "pnpm build",
+    "prepublishOnly": "pnpm typecheck && pnpm test"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",
@@ -73,6 +78,7 @@
   "bugs": {
     "url": "https://github.com/GustavoHerpich/br-docs-utils/issues"
   },
+  "packageManager": "pnpm@10.0.0",
   "publishConfig": {
     "access": "public"
   }
